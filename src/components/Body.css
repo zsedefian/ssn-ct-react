@@ -1,0 +1,11 @@
+.body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    background: #ccc;
+    color: #000;
+}
+
+#logo {
+    max-height: 50px;
+}
