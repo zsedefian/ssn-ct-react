@@ -48,6 +48,7 @@ class Body extends Component {
     private createDropzone() {
         return <Dropzone onDrop={(acceptedFiles: File[]) => {
             acceptedFiles.forEach((file) => {
+                console.log("Uploading image...");
                 this.toBase64(file).then(async base64File => {
                     await fetch(API + '/image', {
                         method: 'post',
@@ -55,9 +56,12 @@ class Body extends Component {
                             Authorization: this.state.jwtToken,
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(base64File).slice(1, -1) // Remove quotes from beginning and end
+                        body: base64File
                     });
-                }).then(res => console.log(res))
+                }).then(() => {
+                    console.log("Image has been uploaded.");
+                    this.setState({imageLinks : []})
+                })
             });
         }}>
             {({getRootProps, getInputProps}) => (
@@ -71,11 +75,22 @@ class Body extends Component {
         </Dropzone>;
     }
 
-    private toBase64 = (file: File) => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
+    private toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+        const fileType = file.name.split('.').pop();
+        if (fileType === 'jpeg' || fileType === 'png') {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                    resolve(reader.result.toString());
+                } else {
+                    console.log("FileReader result was not a string.")
+                }
+            };
+            reader.onerror = error => reject(error);
+        } else {
+            console.log("You attempted to upload a file that wasn't a jpeg or png.")
+        }
     });
 }
 
