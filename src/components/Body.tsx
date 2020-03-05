@@ -55,7 +55,7 @@ class Body extends Component {
                             Authorization: this.state.jwtToken,
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(base64File)
+                        body: JSON.stringify(base64File).slice(1, -1) // Remove quotes from beginning and end
                     });
                 }).then(res => console.log(res))
             });
