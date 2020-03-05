@@ -9,24 +9,22 @@ import Dropzone from "react-dropzone";
 class Body extends Component {
 
     state = {
-        images: []
+        images: [new RedactedImage('Loading...', 'Loading...', 'Loading...', '', '')],
+        jwtToken: ''
     };
 
     async componentDidMount() {
-        const jwtToken = (await Auth.currentSession()).getIdToken().getJwtToken();
+        this.setState({ jwtToken : 'Bearer ' + (await Auth.currentSession()).getIdToken().getJwtToken() });
         fetch(API + '/image', {
             method: 'get',
-            headers: new Headers({
-                'Authorization': jwtToken,
+            headers: {
+                Authorization: this.state.jwtToken,
                 'Content-Type': 'application/json'
-            })
+            }
         })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            this.setState({ images: data})
-        })
-        .catch(console.log)
+            .then(res => res.json())
+            .then(data => this.setState({ images: data }))
+            .catch(console.log)
     }
 
     render() {
@@ -49,12 +47,18 @@ class Body extends Component {
 
     private createDropzone() {
         return <Dropzone onDrop={(acceptedFiles: File[]) => {
-            for (let file of acceptedFiles) {
-                const extension = file.name.split('.').pop();
-                if (extension === 'jpeg' || extension === 'png') {
-                    console.log('is jpeg or png');
-                }
-            }
+            acceptedFiles.forEach((file) => {
+                this.toBase64(file).then(async base64File => {
+                    await fetch(API + '/image', {
+                        method: 'post',
+                        headers: {
+                            Authorization: this.state.jwtToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(base64File)
+                    });
+                }).then(res => console.log(res))
+            });
         }}>
             {({getRootProps, getInputProps}) => (
                 <section>
@@ -66,6 +70,13 @@ class Body extends Component {
             )}
         </Dropzone>;
     }
+
+    private toBase64 = (file: File) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 }
 
 export default Body;

@@ -1,20 +1,3 @@
-/*.row {*/
-/*    display: flex;*/
-/*    flex-direction: row;*/
-/*    flex-wrap: wrap;*/
-/*    width: 100%;*/
-/*}*/
-
-/*.column {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    flex: 1;*/
-/*}*/
-
-/*#phoneNumber {*/
-/*    background-color: aqua;*/
-/*}*/
-
 .row {
     display: flex;
     flex-direction: row;
@@ -28,12 +11,6 @@
     flex: 1;
 }
 
-.blue-column {
-    background-color: blue;
-    height: 100px;
-}
-
-.green-column {
-    background-color: green;
-    height: 100px;
+#image {
+    max-width: 40vh
 }
