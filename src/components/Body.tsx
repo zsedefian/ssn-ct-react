@@ -5,12 +5,14 @@ import {Auth} from "aws-amplify";
 import {API} from "../config";
 import {RedactedImage} from "./RedactedImage";
 import Dropzone from "react-dropzone";
+import ClipLoader from "react-spinners/ClipLoader";
 
 class Body extends Component {
 
     state = {
         images: [new RedactedImage('Loading...', 'Loading...', 'Loading...', '', '')],
-        jwtToken: ''
+        jwtToken: '',
+        loading: false
     };
 
     async componentDidMount() {
@@ -30,6 +32,7 @@ class Body extends Component {
     render() {
         return (
             <div className="body">
+                <ClipLoader size={300} loading={this.state.loading} />
                 {this.createDropzone()}
                 {this.state.images.map((image: RedactedImage, index: number) =>
                     <ImageDisplay
@@ -49,6 +52,7 @@ class Body extends Component {
         return <Dropzone onDrop={(acceptedFiles: File[]) => {
             acceptedFiles.forEach((file) => {
                 console.log("Uploading image...");
+                this.setState({loading: true});
                 this.toBase64(file).then(async base64File => {
                     await fetch(API + '/image', {
                         method: 'post',
@@ -60,7 +64,8 @@ class Body extends Component {
                     });
                 }).then(() => {
                     console.log("Image has been uploaded.");
-                    this.setState({imageLinks : []})
+                    this.setState({imageLinks : [], loading: false});
+                    window.location.reload();
                 })
             });
         }}>
