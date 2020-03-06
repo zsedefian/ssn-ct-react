@@ -3,6 +3,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     width: 100%;
+    border: solid black 2px;
 }
 
 .column {
